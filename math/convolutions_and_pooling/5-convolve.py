@@ -65,12 +65,11 @@ def convolve(images, kernels, padding='same', stride=(1, 1)):
 
     for i in range(output_h):
         for j in range(output_w):
-            for k in range(nc):
-                y = i * sh
-                x = j * sw
-                image_slice = padded[:, y:y + kh, x:x + kw, :]
-                convolved[:, i, j, k] = np.sum(
-                    image_slice * kernels[:, :, :, k], axis=(1, 2, 3)
-                )
+            y = i * sh
+            x = j * sw
+            image_slice = padded[:, y:y + kh, x:x + kw, :]
+            convolved[:, i, j, :] = np.tensordot(
+                image_slice, kernels, axes=([1, 2, 3], [0, 1, 2])
+            )
 
     return convolved
