@@ -47,3 +47,4 @@ def pool(images, kernel_shape, stride, mode='max'):
                 pooled[:, i, j, :] = np.mean(image_slice, axis=(1, 2))
 
     return pooled
+    
