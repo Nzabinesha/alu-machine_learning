@@ -1,61 +1,50 @@
 #!/usr/bin/env python3
-"""Performs a convolution on images using multiple kernels."""
-
+"""Convolution on images with multiple kernels"""
 import numpy as np
-from math import ceil, floor
 
 
 def convolve(images, kernels, padding='same', stride=(1, 1)):
     """
-    Performs a convolution on images using multiple kernels.
+    Performs a convolution on images using multiple kernels
 
-    Args:
-        images: numpy.ndarray of shape (m, h, w, c)
-        kernels: numpy.ndarray of shape (kh, kw, c, nc)
-        padding: 'same', 'valid', or tuple (ph, pw)
-        stride: tuple (sh, sw)
+    images: numpy.ndarray of shape (m, h, w, c)
+    kernels: numpy.ndarray of shape (kh, kw, c, nc)
+    padding: 'same', 'valid', or tuple (ph, pw)
+    stride: tuple (sh, sw)
 
-    Returns:
-        numpy.ndarray containing the convolved images.
+    Returns: numpy.ndarray containing the convolved images
     """
     m, h, w, c = images.shape
     kh, kw, kc, nc = kernels.shape
     sh, sw = stride
 
-    if kc != c:
-        raise ValueError("kernels and images must have the same number of channels")
-
     if padding == 'same':
-        ph = ceil(((h - 1) * sh + kh - h) / 2)
-        pw = ceil(((w - 1) * sw + kw - w) / 2)
+        ph = ((h - 1) * sh + kh - h) // 2 + 1
+        pw = ((w - 1) * sw + kw - w) // 2 + 1
     elif padding == 'valid':
-        ph = 0
-        pw = 0
+        ph, pw = 0, 0
     else:
         ph, pw = padding
 
-    padded = np.pad(
+    images_padded = np.pad(
         images,
         ((0, 0), (ph, ph), (pw, pw), (0, 0)),
         mode='constant'
     )
 
-    oh = floor((h + 2 * ph - kh) / sh) + 1
-    ow = floor((w + 2 * pw - kw) / sw) + 1
+    out_h = (h + 2 * ph - kh) // sh + 1
+    out_w = (w + 2 * pw - kw) // sw + 1
 
-    output = np.zeros((m, oh, ow, nc))
+    output = np.zeros((m, out_h, out_w, nc))
 
-    for i in range(oh):
-        for j in range(ow):
-            current = padded[
-                :,
-                i * sh:i * sh + kh,
-                j * sw:j * sw + kw,
-                :
-            ]
+    for i in range(out_h):
+        for j in range(out_w):
             for k in range(nc):
+                x = i * sh
+                y = j * sw
+                slice_img = images_padded[:, x:x + kh, y:y + kw, :]
                 output[:, i, j, k] = np.sum(
-                    current * kernels[:, :, :, k],
+                    slice_img * kernels[:, :, :, k],
                     axis=(1, 2, 3)
                 )
 
