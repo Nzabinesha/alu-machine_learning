@@ -35,5 +35,3 @@ def convolve_grayscale_valid(images, kernel):
                 image_slice * kernel, axis=(1, 2))
 
     return convolved
-
-
