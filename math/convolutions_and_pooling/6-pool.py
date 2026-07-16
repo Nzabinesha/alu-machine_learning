@@ -1,48 +1,24 @@
 #!/usr/bin/env python3
-"""Module that performs pooling on images."""
+"""Stacked bar graph showing the number of fruit each person possesses."""
 import numpy as np
+import matplotlib.pyplot as plt
 
+np.random.seed(5)
+fruit = np.random.randint(0, 20, (4, 3))
 
-def pool(images, kernel_shape, stride, mode='max'):
-    """Performs pooling on images.
+people = ['Farrah', 'Fred', 'Felicia']
+fruit_names = ['apples', 'bananas', 'oranges', 'peaches']
+colors = ['red', 'yellow', '#ff8000', '#ffe5b4']
 
-    Args:
-        images: numpy.ndarray of shape (m, h, w, c) containing
-            multiple images.
-            m is the number of images.
-            h is the height in pixels of the images.
-            w is the width in pixels of the images.
-            c is the number of channels in the image.
-        kernel_shape: tuple of (kh, kw) containing the kernel shape
-            for the pooling.
-            kh is the height of the kernel.
-            kw is the width of the kernel.
-        stride: tuple of (sh, sw).
-            sh is the stride for the height of the image.
-            sw is the stride for the width of the image.
-        mode: indicates the type of pooling.
-            max indicates max pooling.
-            avg indicates average pooling.
+bottom = np.zeros(3)
+for i in range(4):
+    plt.bar(people, fruit[i], width=0.5, bottom=bottom,
+            color=colors[i], label=fruit_names[i])
+    bottom += fruit[i]
 
-    Returns:
-        numpy.ndarray containing the pooled images.
-    """
-    m, h, w, c = images.shape
-    kh, kw = kernel_shape
-    sh, sw = stride
-
-    output_h = ((h - kh) // sh) + 1
-    output_w = ((w - kw) // sw) + 1
-
-    pooled = np.zeros((m, output_h, output_w, c))
-
-    for i in range(output_h):
-        for j in range(output_w):
-            y = i * sh
-            x = j * sw
-            image_slice = images[:, y:y + kh, x:x + kw, :]
-            if mode == 'max':
-                pooled[:, i, j, :] = np.max(image_slice, axis=(1, 2))
-            elif mode == 'avg':
-                pooled[:, i, j, :] = np.mean(image_slice, axis=(1, 2))
-    return pooled
+plt.ylabel('Quantity of Fruit')
+plt.title('Number of Fruit per Person')
+plt.ylim(0, 80)
+plt.yticks(range(0, 81, 10))
+plt.legend()
+plt.show()
